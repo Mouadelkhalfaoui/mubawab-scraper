@@ -1,0 +1,22 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+requests==2.31.0
+beautifulsoup4==4.12.2
+sqlite3
+
+
+# Core library for parsing HTML and XML, used in most versions
+beautifulsoup4
+
+# A fast and recommended parser for BeautifulSoup
+lxml
+
+# For the first method (standard HTTP requests)
+requests
+
+httpx[http2]
+
+
+selenium
+webdriver-manager

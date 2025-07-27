@@ -1,0 +1,186 @@
+# FICHIERS SENSIBLES - NE JAMAIS COMMITER
+# =============================================
+
+# Bases de données SQLite - Contiennent des données privées
+*.db
+*.sqlite
+*.sqlite3
+mubawab_*.db
+property_*.db
+
+# Fichiers CSV - Données extraites sensibles
+*.csv
+property_links.csv
+filtered_property_links.csv
+villas_appartements_links.csv
+recent_property_links.csv
+
+# Fichiers de configuration avec secrets
+.env
+.env.local
+.env.production
+.env.development
+config.json
+secrets.json
+credentials.json
+settings.json
+
+# Clés API et tokens
+api_keys.txt
+tokens.txt
+*.key
+*.pem
+*.p12
+*.crt
+
+# ENVIRONNEMENT PYTHON
+# =====================
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environnements virtuels
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.ENV/
+myenv/
+
+# OUTILS DE DÉVELOPPEMENT
+# ========================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Autres éditeurs
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# SYSTÈME D'EXPLOITATION
+# =======================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# LOGS ET TEMPORAIRES
+# ===================
+
+# Fichiers de log
+*.log
+logs/
+log.txt
+debug.log
+error.log
+
+# Fichiers temporaires
+*.tmp
+*.temp
+temp/
+tmp/
+.cache/
+
+# TESTS ET COUVERTURE
+# ===================
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# SAUVEGARDE ET ARCHIVES
+# ======================
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# DOSSIERS DE DONNÉES
+# ===================
+
+# Dossier contenant les données extraites
+data/
+exports/
+output/
+results/
+scraped_data/
+
+# Images téléchargées
+images/
+img/
+downloads/

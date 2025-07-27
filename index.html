@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mubawab Scraper - Marrakech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.2rem;
+        }
+
+        .property-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .property-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .property-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .property-btn.active {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            transform: scale(1.05);
+        }
+
+        .scrape-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .scrape-info {
+            background: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 8px;
+            padding: 15px;
+            margin-right: 20px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .scrape-info p {
+            margin: 0;
+            color: #2c7a7b;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scrape-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .scrape-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        .scrape-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .status-panel.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-top: 5px;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .property-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: #f7fafc;
+        }
+
+        .property-content {
+            padding: 20px;
+        }
+
+        .property-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .property-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .property-location {
+            color: #718096;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .property-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .property-detail {
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .property-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .property-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .no-properties {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .websocket-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .websocket-connected {
+            background: #48bb78;
+            color: white;
+        }
+
+        .websocket-disconnected {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .scrape-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="websocket-status" id="websocketStatus">
+        ⚪ Connexion...
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Mubawab Scraper</h1>
+            <p>Système de scraping immobilier pour Marrakech</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>Sélectionner le type de propriété</h3>
+                <div class="property-buttons">
+                    <button class="property-btn" data-type="appartements">🏢 Appartements</button>
+                    <button class="property-btn" data-type="villas">🏰 Villas</button>
+                    <button class="property-btn" data-type="maisons">🏡 Maisons</button>
+                    <button class="property-btn" data-type="riads">🕌 Riads</button>
+                    <button class="property-btn" data-type="locaux_commerciaux">🏪 Locaux Commerciaux</button>
+                    <button class="property-btn" data-type="terrains">🌍 Terrains</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Contrôles de scraping</h3>
+                <div class="scrape-controls">
+                    <div class="scrape-info">
+                        <p>📄 Le backend déterminera automatiquement le nombre total de pages à scraper</p>
+                    </div>
+                    <button class="scrape-btn" id="startScrape">🚀 Lancer le Scraping Complet</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-panel" id="statusPanel">
+            <h3>📊 Statut du scraping</h3>
+            <div id="statusMessage">En attente...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">0/0 pages</div>
+        </div>
+
+        <div class="stats">
+            <h3>📈 Statistiques</h3>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-appartements">-</div>
+                    <div class="stat-label">Appartements</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-villas">-</div>
+                    <div class="stat-label">Villas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-maisons">-</div>
+                    <div class="stat-label">Maisons</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-riads">-</div>
+                    <div class="stat-label">Riads</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-locaux_commerciaux">-</div>
+                    <div class="stat-label">Locaux</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="stat-terrains">-</div>
+                    <div class="stat-label">Terrains</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="propertiesContainer">
+            <div class="no-properties">
+                Sélectionnez un type de propriété pour voir les annonces
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button id="prevPage">← Précédent</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextPage">Suivant →</button>
+        </div>
+    </div>
+
+    <script>
+        class MubawabApp {
+            constructor() {
+                this.apiBase = 'http://localhost:8000';
+                this.selectedPropertyType = null;
+                this.currentPage = 0;
+                this.limit = 12;
+                this.totalProperties = 0;
+                this.websocket = null;
+                this.isConnected = false;
+                
+                this.initializeEventListeners();
+                this.connectWebSocket();
+                this.loadStatistics();
+            }
+
+            initializeEventListeners() {
+                // Boutons de sélection des types de propriétés
+                document.querySelectorAll('.property-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const propertyType = e.target.dataset.type;
+                        this.selectPropertyType(propertyType);
+                    });
+                });
+
+                // Bouton de scraping
+                document.getElementById('startScrape').addEventListener('click', () => {
+                    this.startScraping();
+                });
+
+                // Pagination
+                document.getElementById('prevPage').addEventListener('click', () => {
+                    if (this.currentPage > 0) {
+                        this.currentPage--;
+                        this.loadProperties();
+                    }
+                });
+
+                document.getElementById('nextPage').addEventListener('click', () => {
+                    const maxPage = Math.ceil(this.totalProperties / this.limit) - 1;
+                    if (this.currentPage < maxPage) {
+                        this.currentPage++;
+                        this.loadProperties();
+                    }
+                });
+            }
+
+            connectWebSocket() {
+                const wsUrl = 'ws://localhost:8000/ws';
+                this.websocket = new WebSocket(wsUrl);
+
+                this.websocket.onopen = () => {
+                    console.log('WebSocket connecté');
+                    this.isConnected = true;
+                    this.updateWebSocketStatus();
+                };
+
+                this.websocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.handleScrapingUpdate(data);
+                };
+
+                this.websocket.onclose = () => {
+                    console.log('WebSocket déconnecté');
+                    this.isConnected = false;
+                    this.updateWebSocketStatus();
+                    
+                    // Tentative de reconnexion après 3 secondes
+                    setTimeout(() => {
+                        this.connectWebSocket();
+                    }, 3000);
+                };
+
+                this.websocket.onerror = (error) => {
+                    console.error('Erreur WebSocket:', error);
+                    this.isConnected = false;
+                    this.updateWebSocketStatus();
+                };
+            }
+
+            updateWebSocketStatus() {
+                const statusElement = document.getElementById('websocketStatus');
+                if (this.isConnected) {
+                    statusElement.textContent = '🟢 Connecté';
+                    statusElement.className = 'websocket-status websocket-connected';
+                } else {
+                    statusElement.textContent = '🔴 Déconnecté';
+                    statusElement.className = 'websocket-status websocket-disconnected';
+                }
+            }
+
+            selectPropertyType(propertyType) {
+                // Mise à jour des boutons
+                document.querySelectorAll('.property-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-type="${propertyType}"]`).classList.add('active');
+
+                this.selectedPropertyType = propertyType;
+                this.currentPage = 0;
+                this.loadProperties();
+            }
+
+            async loadProperties() {
+                if (!this.selectedPropertyType) return;
+
+                const container = document.getElementById('propertiesContainer');
+                container.innerHTML = '<div class="loading">⏳ Chargement des propriétés...</div>';
+
+                try {
+                    const offset = this.currentPage * this.limit;
+                    const response = await fetch(`${this.apiBase}/properties/${this.selectedPropertyType}?limit=${this.limit}&offset=${offset}`);
+                    const data = await response.json();
+
+                    this.totalProperties = data.total;
+                    this.displayProperties(data.properties);
+                    this.updatePagination();
+
+                } catch (error) {
+                    console.error('Erreur lors du chargement:', error);
+                    container.innerHTML = '<div class="no-properties">❌ Erreur lors du chargement des propriétés</div>';
+                }
+            }
+
+            displayProperties(properties) {
+                const container = document.getElementById('propertiesContainer');
+                
+                if (properties.length === 0) {
+                    container.innerHTML = '<div class="no-properties">Aucune propriété trouvée pour ce type</div>';
+                    return;
+                }
+
+                const propertiesHtml = properties.map(property => {
+                    const isTerrainType = this.selectedPropertyType === 'terrains';
+                    
+                    return `
+                        <div class="property-card" onclick="window.open('${property.lien}', '_blank')">
+                            <img class="property-image" 
+                                 src="${property.image_url !== 'N/A' ? property.image_url : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjdmYWZjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5YTNiMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkF1Y3VuZSBpbWFnZTwvdGV4dD48L3N2Zz4='}" 
+                                 alt="${property.titre}"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjdmYWZjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5YTNiMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkF1Y3VuZSBpbWFnZTwvdGV4dD48L3N2Zz4='">
+                            <div class="property-content">
+                                <h3 class="property-title">${property.titre}</h3>
+                                <div class="property-price">${property.prix}</div>
+                                <div class="property-location">📍 ${property.localisation}</div>
+                                
+                                <div class="property-details">
+                                    <div class="property-detail">📐 ${property.surface}</div>
+                                    ${!isTerrainType ? `
+                                        <div class="property-detail">🏠 ${property.pieces}</div>
+                                        <div class="property-detail">🛏️ ${property.chambres}</div>
+                                        <div class="property-detail">🚿 ${property.salles_de_bain}</div>
+                                    ` : ''}
+                                </div>
+                                
+                                <a href="${property.lien}" target="_blank" class="property-link" onclick="event.stopPropagation()">
+                                    Voir sur Mubawab →
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="properties-grid">${propertiesHtml}</div>`;
+            }
+
+            updatePagination() {
+                const pagination = document.getElementById('pagination');
+                const pageInfo = document.getElementById('pageInfo');
+                const prevBtn = document.getElementById('prevPage');
+                const nextBtn = document.getElementById('nextPage');
+
+                if (this.totalProperties > this.limit) {
+                    pagination.style.display = 'flex';
+                    const totalPages = Math.ceil(this.totalProperties / this.limit);
+                    pageInfo.textContent = `Page ${this.currentPage + 1} sur ${totalPages}`;
+                    
+                    prevBtn.disabled = this.currentPage === 0;
+                    nextBtn.disabled = this.currentPage >= totalPages - 1;
+                } else {
+                    pagination.style.display = 'none';
+                }
+            }
+
+            async loadStatistics() {
+                try {
+                    const response = await fetch(`${this.apiBase}/statistics`);
+                    const stats = await response.json();
+
+                    Object.keys(stats).forEach(propertyType => {
+                        const element = document.getElementById(`stat-${propertyType}`);
+                        if (element) {
+                            element.textContent = stats[propertyType].toLocaleString();
+                        }
+                    });
+                } catch (error) {
+                    console.error('Erreur lors du chargement des statistiques:', error);
+                }
+            }
+
+            async startScraping() {
+                if (!this.selectedPropertyType) {
+                    alert('⚠️ Veuillez d\'abord sélectionner un type de propriété');
+                    return;
+                }
+
+                const scrapeBtn = document.getElementById('startScrape');
+                
+                // Confirmer l'action
+                const propertyTypeNames = {
+                    'appartements': 'Appartements',
+                    'villas': 'Villas', 
+                    'maisons': 'Maisons',
+                    'riads': 'Riads',
+                    'locaux_commerciaux': 'Locaux Commerciaux',
+                    'terrains': 'Terrains'
+                };
+                
+                const confirmed = confirm(`🚀 Voulez-vous lancer le scraping complet pour les ${propertyTypeNames[this.selectedPropertyType]} ?\n\n📊 Le backend analysera automatiquement toutes les pages disponibles sur Mubawab.`);
+                if (!confirmed) return;
+                
+                scrapeBtn.disabled = true;
+                scrapeBtn.textContent = '⏳ Scraping en cours...';
+                scrapeBtn.style.background = 'linear-gradient(135deg, #fbb6ce, #f687b3)';
+
+                const statusPanel = document.getElementById('statusPanel');
+                statusPanel.classList.add('active');
+
+                // Réinitialiser la barre de progression
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressText').textContent = 'Analyse du nombre total de pages...';
+                document.getElementById('statusMessage').textContent = '🔍 Initialisation du scraping automatique...';
+
+                try {
+                    const response = await fetch(`${this.apiBase}/scrape`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            property_type: this.selectedPropertyType
+                            // Pas de max_pages - le backend détermine automatiquement
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors du démarrage du scraping');
+                    }
+
+                    const result = await response.json();
+                    console.log('✅ Scraping automatique démarré:', result);
+
+                } catch (error) {
+                    console.error('❌ Erreur:', error);
+                    alert('❌ Erreur lors du démarrage du scraping: ' + error.message);
+                    scrapeBtn.disabled = false;
+                    scrapeBtn.textContent = '🚀 Lancer le Scraping Complet';
+                    scrapeBtn.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+                    statusPanel.classList.remove('active');
+                }
+            }
+
+            handleScrapingUpdate(data) {
+                const statusMessage = document.getElementById('statusMessage');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                const scrapeBtn = document.getElementById('startScrape');
+
+                // Messages avec emojis selon le statut
+                const statusEmojis = {
+                    'starting': '🔄',
+                    'progress': '⚡',
+                    'completed': '✅',
+                    'error': '❌'
+                };
+
+                const emoji = statusEmojis[data.status] || '📊';
+                statusMessage.innerHTML = `${emoji} ${data.message}`;
+                
+                if (data.total_pages > 0) {
+                    const progress = (data.current_page / data.total_pages) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    
+                    // Texte de progression enrichi
+                    if (data.status === 'starting') {
+                        progressText.textContent = `🔍 Détection: ${data.total_pages} pages trouvées`;
+                    } else if (data.status === 'progress') {
+                        progressText.textContent = `📄 ${data.current_page}/${data.total_pages} pages | ✨ ${data.new_properties} nouvelles | 📊 Total: ${data.total_properties}`;
+                    } else if (data.status === 'completed') {
+                        progressText.textContent = `🎉 Terminé: ${data.total_properties} nouvelles propriétés ajoutées!`;
+                        progressFill.style.background = 'linear-gradient(90deg, #48bb78, #38a169)';
+                    }
+                } else {
+                    progressText.textContent = 'Initialisation...';
+                }
+
+                if (data.status === 'completed' || data.status === 'error') {
+                    scrapeBtn.disabled = false;
+                    scrapeBtn.textContent = '🚀 Lancer le Scraping Complet';
+                    scrapeBtn.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+                    
+                    // Actualiser les statistiques et les propriétés
+                    this.loadStatistics();
+                    if (this.selectedPropertyType) {
+                        this.loadProperties();
+                    }
+
+                    // Message de succès ou d'erreur
+                    if (data.status === 'completed') {
+                        // Notification de succès
+                        setTimeout(() => {
+                            if (data.total_properties > 0) {
+                                alert(`🎉 Scraping terminé avec succès!\n\n✨ ${data.total_properties} nouvelles propriétés ajoutées\n📊 Les données ont été mises à jour automatiquement`);
+                            } else {
+                                alert(`ℹ️ Scraping terminé!\n\n📋 Aucune nouvelle propriété trouvée\n(Toutes les propriétés étaient déjà en base)`);
+                            }
+                        }, 1000);
+                    }
+
+                    // Masquer le panel de statut après 8 secondes
+                    setTimeout(() => {
+                        document.getElementById('statusPanel').classList.remove('active');
+                    }, 8000);
+                }
+            }
+        }
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', () => {
+            new MubawabApp();
+        });
+    </script>
+</body>
+</html>
